@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Pago - SQL Store</title>
+    <link rel="stylesheet" href="css/estilos.css">
+    <script src="js/app.js"></script>
+</head>
+<body onload="inicializarPago()">
+
+<header>
+    <h2><a href="index.html">SQL Store</a></h2>
+    <div>
+        <a href="historial.html">Historial</a>
+        <a href="carrito.html">
+            🛒 <span id="cartCount" class="cart-badge" style="display:none;"></span>
+        </a>
+    </div>
+</header>
+
+<div class="container">
+
+    <h1>Finalizar Compra</h1>
+
+    <h2>Resumen del Pedido</h2>
+    <div id="resumen"></div>
+    <h3>Total: $<span id="total"></span></h3>
+
+    <hr>
+
+    <h2>Datos del Cliente</h2>
+    <input id="nombre" placeholder="Nombre Completo"><br><br>
+    <input id="email" placeholder="Correo Electrónico"><br><br>
+    <input id="direccion" placeholder="Dirección de Envío"><br><br>
+    <input id="ciudad" placeholder="Ciudad"><br><br>
+    <input id="pais" placeholder="País"><br><br>
+    <input id="codigoPostal" placeholder="Código Postal"><br><br>
+
+    <hr>
+
+    <h2>Datos de Pago</h2>
+    <input id="numeroTarjeta" placeholder="Número de tarjeta"><br><br>
+
+    <button id="btnPagar" onclick="procesarPago()" disabled>Pagar</button>
+
+</div>
+
+<script>
+
+function inicializarPago() {
+    actualizarBadge();
+    renderResumen();
+    validarCampos();
+}
+
+function renderResumen() {
+    const carrito = getCarrito();
+    const resumen = document.getElementById("resumen");
+    resumen.innerHTML = "";
+    let total = 0;
+
+    carrito.forEach(p => {
+        const subtotal = p.Precio * p.cantidad;
+        total += subtotal;
+
+        resumen.innerHTML += `
+            <div>
+                ${p.Nombre} - ${p.cantidad} x $${p.Precio} = $${subtotal}
+            </div>
+        `;
+    });
+
+    document.getElementById("total").innerText = total.toFixed(2);
+}
+
+function validarCampos() {
+    const inputs = document.querySelectorAll("input");
+    inputs.forEach(input => {
+        input.addEventListener("input", () => {
+            const allFilled = Array.from(inputs).every(i => i.value.trim() !== "");
+            document.getElementById("btnPagar").disabled = !allFilled;
+        });
+    });
+}
+
+async function procesarPago() {
+
+    const carrito = getCarrito();
+
+    const data = {
+        nombre: document.getElementById("nombre").value,
+        email: document.getElementById("email").value,
+        direccion: document.getElementById("direccion").value,
+        ciudad: document.getElementById("ciudad").value,
+        pais: document.getElementById("pais").value,
+        codigoPostal: document.getElementById("codigoPostal").value,
+        metodoPago: "Tarjeta",
+        numeroTarjeta: document.getElementById("numeroTarjeta").value,
+        carrito: carrito.map(p => ({
+            idProducto: p.IdProducto,
+            cantidad: p.cantidad
+        }))
+    };
+
+    const res = await fetch("http://localhost:3000/comprar", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data)
+    });
+
+    const mensaje = await res.text();
+
+    if (res.ok) {
+        alert("✅ Compra realizada con éxito");
+        localStorage.removeItem("carrito");
+        window.location.href = "index.html";
+    } else {
+        alert("❌ Error: " + mensaje);
+    }
+}
+
+</script>
+
+</body>
+</html>

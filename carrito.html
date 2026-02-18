@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Carrito - SQL Store</title>
+    <link rel="stylesheet" href="css/estilos.css">
+    <script src="js/app.js"></script>
+</head>
+<body onload="renderCarrito()">
+
+<header>
+    <h2><a href="index.html" style="color:white;text-decoration:none;">SQL Store</a></h2>
+    <div>
+        <a href="historial.html">Historial</a>
+        <a href="carrito.html">
+            🛒 <span id="cartCount" class="cart-badge" style="display:none;"></span>
+        </a>
+    </div>
+</header>
+
+<div class="container">
+
+    <h1>Tu Carrito</h1>
+
+    <div id="listaCarrito"></div>
+
+    <hr>
+
+    <h2>Total: $<span id="total">0.00</span></h2>
+
+    <br>
+
+    <button onclick="window.location.href='productos.html'">
+        Seguir Comprando
+    </button>
+
+    <button onclick="irAPago()" id="btnPago">
+        Ir a Pagar
+    </button>
+
+</div>
+
+<script>
+
+function renderCarrito(){
+    actualizarBadge();
+
+    let carrito = getCarrito();
+    const cont = document.getElementById("listaCarrito");
+    cont.innerHTML = "";
+
+    let total = 0;
+
+    if(carrito.length === 0){
+        cont.innerHTML = "<p>El carrito está vacío.</p>";
+        document.getElementById("btnPago").disabled = true;
+        document.getElementById("total").innerText = "0.00";
+        return;
+    }
+
+    carrito.forEach((p,index)=>{
+        const subtotal = p.Precio * p.cantidad;
+        total += subtotal;
+
+        cont.innerHTML += `
+            <div style="background:white;padding:15px;margin-bottom:10px;border-radius:8px;">
+                <strong>${p.Nombre}</strong><br>
+                Precio: $${p.Precio}<br>
+                Cantidad: ${p.cantidad}<br>
+                Subtotal: $${subtotal.toFixed(2)}<br><br>
+
+                <button onclick="aumentar(${index})">+</button>
+                <button onclick="disminuir(${index})">-</button>
+                <button onclick="eliminar(${index})" style="background:#d9534f;">
+                    Eliminar
+                </button>
+            </div>
+        `;
+    });
+
+    document.getElementById("total").innerText = total.toFixed(2);
+}
+
+function aumentar(index){
+    let carrito = getCarrito();
+    carrito[index].cantidad++;
+    saveCarrito(carrito);
+    renderCarrito();
+}
+
+function disminuir(index){
+    let carrito = getCarrito();
+    carrito[index].cantidad--;
+
+    if(carrito[index].cantidad <= 0){
+        carrito.splice(index,1);
+    }
+
+    saveCarrito(carrito);
+    renderCarrito();
+}
+
+function eliminar(index){
+    let carrito = getCarrito();
+    carrito.splice(index,1);
+    saveCarrito(carrito);
+    renderCarrito();
+}
+
+function irAPago(){
+    window.location.href = "pago.html";
+}
+
+</script>
+
+</body>
+</html>
