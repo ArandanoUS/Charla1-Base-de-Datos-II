@@ -7,8 +7,8 @@ app.use(cors());
 app.use(express.json());
 
 const config = {
-    user: "TU_USUARIO",
-    password: "TU_PASSWORD",
+    user: "sa",
+    password: "Charla123!",
     server: "localhost",
     database: "sqlserverdemo",
     options: {
