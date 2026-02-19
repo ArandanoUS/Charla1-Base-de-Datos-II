@@ -35,6 +35,7 @@ async function cargarProductos(){
         <div class="product-card">
             <img src="https://via.placeholder.com/200">
             <h3>${p.Nombre}</h3>
+            <p>${p.Descripcion}</p>
             <p>$${p.Precio}</p>
             <p>Stock: ${p.Stock}</p>
             <button onclick='agregarAlCarrito(${JSON.stringify(p)})'>Agregar</button>
