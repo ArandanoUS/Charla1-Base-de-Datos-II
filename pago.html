@@ -110,11 +110,11 @@ async function procesarPago() {
     const mensaje = await res.text();
 
     if (res.ok) {
-        alert("✅ Compra realizada con éxito");
+        alert("Compra realizada con éxito");
         localStorage.removeItem("carrito");
         window.location.href = "index.html";
     } else {
-        alert("❌ Error: " + mensaje);
+        alert("Error: " + mensaje);
     }
 }
 
