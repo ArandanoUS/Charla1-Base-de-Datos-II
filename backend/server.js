@@ -1,10 +1,21 @@
 const express = require("express");
 const sql = require("mssql");
 const cors = require("cors");
+const { conectarProducer, enviarEventoPedido } = require('./kafka');
+
+(async () => {
+    try {
+        await conectarProducer();
+        console.log("Kafka Producer conectado");
+    } catch (err) {
+        console.error("Error conectando Kafka:", err);
+    }
+})();
 
 const app = express();
 app.use(cors());
 app.use(express.json());
+app.use(express.static('../frontend'));
 
 const config = {
     user: "sa",
@@ -22,6 +33,21 @@ sql.connect(config);
 app.get("/productos", async (req, res) => {
     const result = await sql.query("EXEC ObtenerProductos");
     res.json(result.recordset);
+});
+
+// Obtener dashboard
+app.get("/dashboard", async (req, res) => {
+    try {
+        const result = await sql.query`EXEC ObtenerDashboard`;
+
+        res.json({
+            resumen: result.recordsets[0][0],
+            topProductos: result.recordsets[1]
+        });
+
+    } catch (err) {
+        res.status(500).send(err.message);
+    }
 });
 
 //Obtener Historial de Compras
@@ -68,6 +94,16 @@ app.post("/comprar", async (req, res) => {
         request.input("Carrito", table);
 
         await request.execute("ProcesarCompra");
+
+        await enviarEventoPedido({
+            tipo: "pedido",
+            cliente: nombre,
+            email: email,
+            total: carrito.reduce((acc, item) => acc + (item.precio * item.cantidad), 0),
+            productos: carrito,
+            fecha: new Date()
+        });
+
 
         res.send("Compra realizada con éxito");
     } catch (error) {

@@ -1,0 +1,7 @@
+[
+  { "nombre": "Laptop Pro", "precio": 1200, "stock": 10 },
+  { "nombre": "Mouse Gamer", "precio": 50, "stock": 25 },
+  { "nombre": "Teclado Mecánico", "precio": 80, "stock": 15 },
+  { "nombre": "Monitor 24", "precio": 200, "stock": 8 },
+  { "nombre": "Auriculares", "precio": 70, "stock": 20 }
+]
